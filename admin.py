@@ -7,7 +7,7 @@ import json
 app = Flask(__name__)
 
 # Connect to a MySQL database on network.
-db = MySQLDatabase('trainticket', user='root', password='', )
+db = MySQLDatabase('trainticket', user='root', password='root')
 
 
 # Models
@@ -55,10 +55,17 @@ def createUser():
     password = request.form.get('password')
     address = request.form.get('address')
 
-    newUser = User(name=name, number=number, password=password, address=address)
-    newUser.save()
+    try:
+        user = User.get(User.number == number)
+        k = jsonify(model_to_dict(user))
 
-    return jsonify({"response": "success"})
+        return "exists"
+    except:
+        newUser = User(name=name, number=number, password=password, address=address)
+        newUser.save()
+        return newUser
+
+
 
 
 @app.route('/login', methods=['POST'])
@@ -114,4 +121,4 @@ def getPosts(userid):
 
 
 if __name__ == "__main__":
-    app.run(port=5003)
+    app.run(host="0.0.0.0", port=5003)
